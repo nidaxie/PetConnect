@@ -1,0 +1,42 @@
+import { createBrowserRouter } from "react-router";
+import { Home } from "./pages/Home";
+import { ExplorePets } from "./pages/ExplorePets";
+import { PetDetail } from "./pages/PetDetail";
+import { Shelters } from "./pages/Shelters";
+import { ShelterDetail } from "./pages/ShelterDetail";
+import { Dashboard } from "./pages/Dashboard";
+import { MyListings } from "./pages/MyListings";
+import { Favorites } from "./pages/Favorites";
+import { CreateListing } from "./pages/CreateListing";
+import { Login } from "./pages/Login";
+import { HowItWorks } from "./pages/HowItWorks";
+import { FAQ } from "./pages/FAQ";
+import { Contact } from "./pages/Contact";
+import { Messages } from "./pages/Messages";
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { AdminUsers } from "./pages/admin/AdminUsers";
+import { AdminShelters } from "./pages/admin/AdminShelters";
+import { AdminListings } from "./pages/admin/AdminListings";
+import { NotFound } from "./pages/NotFound";
+
+export const router = createBrowserRouter([
+  { path: "/", Component: Home },
+  { path: "/explore", Component: ExplorePets },
+  { path: "/pets/:id", Component: PetDetail },
+  { path: "/shelters", Component: Shelters },
+  { path: "/shelters/:id", Component: ShelterDetail },
+  { path: "/how-it-works", Component: HowItWorks },
+  { path: "/faq", Component: FAQ },
+  { path: "/contact", Component: Contact },
+  { path: "/dashboard", Component: Dashboard },
+  { path: "/dashboard/listings", Component: MyListings },
+  { path: "/dashboard/create", Component: CreateListing },
+  { path: "/dashboard/favorites", Component: Favorites },
+  { path: "/messages", Component: Messages },
+  { path: "/login", Component: Login },
+  { path: "/admin", Component: AdminDashboard },
+  { path: "/admin/users", Component: AdminUsers },
+  { path: "/admin/shelters", Component: AdminShelters },
+  { path: "/admin/listings", Component: AdminListings },
+  { path: "*", Component: NotFound },
+]);
