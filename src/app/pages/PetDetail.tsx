@@ -49,19 +49,6 @@ export function PetDetail() {
     finally { setFavLoading(false); }
   };
 
-  const handleMessage = async () => {
-    if (!isAuthenticated) { navigate("/login"); return; }
-    if (!pet) return;
-    try {
-      const conv = await api.messages.createConversation(pet.id);
-      navigate(`/messages?conv=${conv.id}`);
-    } catch (err: unknown) {
-      if (err instanceof Error && err.message.includes('kendi')) {
-        alert(err.message);
-      }
-    }
-  };
-
   if (loading) return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
@@ -147,11 +134,19 @@ export function PetDetail() {
                   <div><p className="text-sm text-gray-600 mb-1">Cinsiyet</p><p className="font-medium">{pet.gender === "male" ? "Erkek" : "Dişi"}</p></div>
                   <div><p className="text-sm text-gray-600 mb-1">Sağlık Durumu</p><p className="font-medium">{healthStatus}</p></div>
                   <div><p className="text-sm text-gray-600 mb-1">Şehir</p><p className="font-medium flex items-center gap-1"><MapPin className="w-4 h-4" />{pet.city}</p></div>
+                  {pet.district && <div><p className="text-sm text-gray-600 mb-1">İlçe</p><p className="font-medium">{pet.district}</p></div>}
+                  {pet.color && <div><p className="text-sm text-gray-600 mb-1">Renk</p><p className="font-medium">{pet.color}</p></div>}
+                  {pet.size && <div><p className="text-sm text-gray-600 mb-1">Büyüklük</p><p className="font-medium">{pet.size === 'small' ? 'Küçük' : pet.size === 'medium' ? 'Orta' : pet.size === 'large' ? 'Büyük' : 'Çok Büyük'}</p></div>}
+                  {pet.weight && <div><p className="text-sm text-gray-600 mb-1">Ağırlık</p><p className="font-medium">{pet.weight} kg</p></div>}
                 </div>
                 <div className="mt-6 pt-6 border-t border-gray-200">
                   <div className="flex flex-wrap gap-3">
                     {pet.vaccinated && <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-lg text-sm"><CheckCircle className="w-4 h-4" />Aşılı</div>}
                     {pet.neutered && <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm"><CheckCircle className="w-4 h-4" />Kısırlaştırılmış</div>}
+                    {pet.microchipped && <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-sm"><CheckCircle className="w-4 h-4" />Mikroçipli</div>}
+                    {pet.pedigree && <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-50 text-yellow-700 rounded-lg text-sm"><CheckCircle className="w-4 h-4" />Irk Belgeli</div>}
+                    {pet.child_friendly && <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-pink-50 text-pink-700 rounded-lg text-sm"><CheckCircle className="w-4 h-4" />Çocuk Dostu</div>}
+                    {pet.pet_friendly && <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-teal-50 text-teal-700 rounded-lg text-sm"><CheckCircle className="w-4 h-4" />Diğer Hayvanlarla Uyumlu</div>}
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-orange-50 text-orange-700 rounded-lg text-sm">
                       <Shield className="w-4 h-4" />
                       {listingType === "adoption" ? "Sahiplendirme" : "Çiftleştirme"}
@@ -164,12 +159,16 @@ export function PetDetail() {
             <div className="lg:col-span-1">
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 sticky top-24">
                 <h3 className="text-2xl font-bold mb-4">{pet.name}</h3>
-                <div className="space-y-4 mb-6">
+                <div className="space-y-2 mb-6">
                   <div className="flex items-center gap-3 text-gray-600">
                     <Calendar className="w-5 h-5" />
                     <span className="text-sm">
                       {createdAt ? new Date(createdAt).toLocaleDateString("tr-TR", { year: "numeric", month: "long", day: "numeric" }) : ""}
                     </span>
+                  </div>
+                  <div className="flex items-center gap-3 text-gray-600">
+                    <MapPin className="w-5 h-5" />
+                    <span className="text-sm">{pet.city}{pet.district ? `, ${pet.district}` : ""}</span>
                   </div>
                 </div>
 
@@ -186,12 +185,29 @@ export function PetDetail() {
                   </div>
                 </div>
 
-                <div className="space-y-4 mb-6">
+                <div className="space-y-3 mb-6">
                   <h3 className="font-semibold text-gray-900">İletişim Bilgileri</h3>
 
                   {ownerType === "shelter" ? (
                     <div className="space-y-3">
-                      <p className="text-sm text-gray-600">Detaylı iletişim bilgileri için barınak sayfasını ziyaret edin.</p>
+                      {pet.ownerPhone && (
+                        <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
+                          <Phone className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                          <div>
+                            <p className="text-xs text-gray-500">Telefon</p>
+                            <a href={`tel:${pet.ownerPhone}`} className="font-medium text-orange-500 hover:text-orange-600">{pet.ownerPhone}</a>
+                          </div>
+                        </div>
+                      )}
+                      {pet.ownerEmail && (
+                        <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
+                          <Mail className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                          <div className="overflow-hidden">
+                            <p className="text-xs text-gray-500">E-posta</p>
+                            <a href={`mailto:${pet.ownerEmail}`} className="font-medium text-orange-500 hover:text-orange-600 truncate block">{pet.ownerEmail}</a>
+                          </div>
+                        </div>
+                      )}
                       <Link to={`/shelters/${ownerId}`} className="w-full px-6 py-3 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-xl font-medium hover:shadow-lg transition-shadow flex items-center justify-center gap-2">
                         <Shield className="w-5 h-5" />
                         Barınak Sayfasına Git
@@ -199,32 +215,29 @@ export function PetDetail() {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {pet.ownerPhone && (
-                        <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-200">
-                          <Phone className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
-                          <div className="flex-1">
-                            <p className="text-xs text-gray-600 mb-1">Telefon</p>
-                            <a href={`tel:${pet.ownerPhone}`} className="font-medium text-orange-500 hover:text-orange-600">{pet.ownerPhone}</a>
+                      {pet.contact_phone && (
+                        <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
+                          <Phone className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                          <div>
+                            <p className="text-xs text-gray-500">Telefon</p>
+                            <a href={`tel:${pet.contact_phone}`} className="font-medium text-orange-500 hover:text-orange-600">{pet.contact_phone}</a>
                           </div>
                         </div>
                       )}
-                      {pet.ownerEmail && (
-                        <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-200">
-                          <Mail className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
-                          <div className="flex-1">
-                            <p className="text-xs text-gray-600 mb-1">E-posta</p>
-                            <a href={`mailto:${pet.ownerEmail}`} className="font-medium text-orange-500 hover:text-orange-600 break-all">{pet.ownerEmail}</a>
+                      {pet.contact_email && (
+                        <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
+                          <Mail className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                          <div className="overflow-hidden">
+                            <p className="text-xs text-gray-500">E-posta</p>
+                            <a href={`mailto:${pet.contact_email}`} className="font-medium text-orange-500 hover:text-orange-600 truncate block">{pet.contact_email}</a>
                           </div>
                         </div>
                       )}
-                      <button onClick={handleMessage} className="w-full px-6 py-3 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-xl font-medium hover:shadow-lg transition-shadow flex items-center justify-center gap-2">
-                        Mesaj Gönder
-                      </button>
                     </div>
                   )}
                 </div>
 
-                <div className="mt-6 p-4 bg-blue-50 rounded-xl">
+                <div className="p-4 bg-blue-50 rounded-xl">
                   <div className="flex gap-3">
                     <Shield className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <div>

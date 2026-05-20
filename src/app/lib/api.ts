@@ -64,18 +64,6 @@ export const api = {
     check: (petId: string) => request<{ favorited: boolean }>(`/favorites/check/${petId}`),
   },
 
-  messages: {
-    conversations: () => request<Conversation[]>('/messages/conversations'),
-    getMessages: (convId: string) => request<Message[]>(`/messages/conversations/${convId}`),
-    createConversation: (petId: string) =>
-      request<{ id: string }>('/messages/conversations', { method: 'POST', body: JSON.stringify({ petId }) }),
-    sendMessage: (convId: string, text: string) =>
-      request<Message>(`/messages/conversations/${convId}/messages`, {
-        method: 'POST',
-        body: JSON.stringify({ text }),
-      }),
-  },
-
   admin: {
     stats: () => request<AdminStats>('/admin/stats'),
     users: (params?: Record<string, string>) => {
@@ -116,6 +104,9 @@ export interface User {
   name: string;
   email: string;
   role: 'user' | 'shelter' | 'admin';
+  phone?: string;
+  city?: string;
+  avatar_url?: string;
   is_active?: number;
   created_at?: string;
 }
@@ -126,8 +117,13 @@ export interface Pet {
   type: 'dog' | 'cat';
   breed: string;
   age: number;
+  age_unit?: 'month' | 'year';
   gender: 'male' | 'female';
+  color?: string;
+  weight?: number;
+  size?: 'small' | 'medium' | 'large' | 'xlarge';
   city: string;
+  district?: string;
   description: string;
   listing_type: string;
   listingType?: string;
@@ -135,6 +131,12 @@ export interface Pet {
   healthStatus?: string;
   vaccinated: boolean;
   neutered: boolean;
+  microchipped?: boolean;
+  pedigree?: boolean;
+  child_friendly?: boolean;
+  pet_friendly?: boolean;
+  contact_phone?: string;
+  contact_email?: string;
   owner_id: string;
   owner_type: 'user' | 'shelter';
   ownerType?: string;
@@ -160,9 +162,15 @@ export interface Shelter {
   address: string;
   phone: string;
   email: string;
+  website?: string;
   description: string;
   cover_image?: string;
   coverImage?: string;
+  logo_url?: string;
+  social_facebook?: string;
+  social_instagram?: string;
+  working_hours?: string;
+  founded_year?: number;
   total_pets?: number;
   totalPets?: number;
   adopted_count?: number;
@@ -175,26 +183,6 @@ export interface Shelter {
   joinedDate?: string;
   applicant_name?: string;
   applicant_email?: string;
-}
-
-export interface Conversation {
-  id: string;
-  petName: string;
-  petId: string;
-  otherUserId: string;
-  otherUserName: string;
-  otherUserAvatar: string;
-  lastMessage: string;
-  lastMessageTime: string;
-  unreadCount: number;
-}
-
-export interface Message {
-  id: string;
-  text: string;
-  sender: 'me' | 'other';
-  senderName?: string;
-  timestamp: string;
 }
 
 export interface AdminStats {

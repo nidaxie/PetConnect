@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
-import { PlusCircle, List, Heart, User, TrendingUp, Eye, CheckCircle } from "lucide-react";
+import { PlusCircle, List, Heart, TrendingUp, Eye, CheckCircle } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import { api, type Pet } from "../lib/api";
@@ -52,7 +52,7 @@ export function Dashboard() {
           <p className="text-gray-600">İlanlarınızı yönetin ve favorilerinizi kontrol edin</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
@@ -99,12 +99,12 @@ export function Dashboard() {
                 <div className="space-y-4">
                   {myListings.map((pet) => (
                     <Link key={pet.id} to={`/pets/${pet.id}`} className="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors">
-                      <img src={pet.images?.[0] || ''} alt={pet.name} className="w-20 h-20 rounded-lg object-cover" />
-                      <div className="flex-1">
+                      <img src={pet.images?.[0] || ''} alt={pet.name} className="w-20 h-20 rounded-lg object-cover flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
                         <h3 className="font-semibold mb-1">{pet.name}</h3>
                         <p className="text-sm text-gray-600">{pet.breed} • {pet.city}</p>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right flex-shrink-0">
                         <div className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 text-green-600 rounded-lg text-xs font-medium mb-2">
                           <CheckCircle className="w-3 h-3" />
                           Aktif
@@ -128,33 +128,6 @@ export function Dashboard() {
                 Yeni İlan Ekle
               </Link>
             </div>
-
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-              <h2 className="text-xl font-bold mb-6">Hızlı Bilgi</h2>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                  <div className="flex-1">
-                    <p className="text-sm">İlanlarınız <span className="font-medium">{totalViews}</span> kez görüntülendi</p>
-                    <p className="text-xs text-gray-500 mt-1">Tüm zamanlar</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-pink-500 rounded-full mt-2"></div>
-                  <div className="flex-1">
-                    <p className="text-sm"><span className="font-medium">{favCount}</span> ilan favorilerinizde</p>
-                    <p className="text-xs text-gray-500 mt-1">Beğendiğiniz hayvanlar</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                  <div className="flex-1">
-                    <p className="text-sm">Mesajlarınızı <Link to="/messages" className="font-medium text-orange-500">buradan</Link> görüntüleyin</p>
-                    <p className="text-xs text-gray-500 mt-1">İletişim</p>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           <div className="lg:col-span-1 space-y-6">
@@ -172,10 +145,6 @@ export function Dashboard() {
                 <Link to="/dashboard/favorites" className="flex items-center gap-3 p-3 rounded-lg hover:bg-orange-50 text-gray-700 hover:text-orange-600 transition-colors">
                   <Heart className="w-5 h-5" />
                   <span className="font-medium">Favoriler</span>
-                </Link>
-                <Link to="/messages" className="flex items-center gap-3 p-3 rounded-lg hover:bg-orange-50 text-gray-700 hover:text-orange-600 transition-colors">
-                  <User className="w-5 h-5" />
-                  <span className="font-medium">Mesajlar</span>
                 </Link>
               </div>
             </div>

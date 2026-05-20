@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router";
-import { Heart, User, PawPrint, Home, LogOut, Settings, MessageSquare } from "lucide-react";
+import { Heart, User, PawPrint, Home, LogOut, Settings } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useState, useRef, useEffect } from "react";
 
@@ -96,13 +96,6 @@ export function Header() {
                   title="Favoriler"
                 >
                   <Heart className="w-5 h-5" />
-                </Link>
-                <Link
-                  to="/messages"
-                  className="p-2 text-gray-600 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-colors"
-                  title="Mesajlar"
-                >
-                  <MessageSquare className="w-5 h-5" />
                 </Link>
                 <div className="relative" ref={dropdownRef}>
                   <button

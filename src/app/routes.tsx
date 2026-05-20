@@ -12,7 +12,6 @@ import { Login } from "./pages/Login";
 import { HowItWorks } from "./pages/HowItWorks";
 import { FAQ } from "./pages/FAQ";
 import { Contact } from "./pages/Contact";
-import { Messages } from "./pages/Messages";
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { AdminUsers } from "./pages/admin/AdminUsers";
 import { AdminShelters } from "./pages/admin/AdminShelters";
@@ -32,7 +31,6 @@ export const router = createBrowserRouter([
   { path: "/dashboard/listings", Component: MyListings },
   { path: "/dashboard/create", Component: CreateListing },
   { path: "/dashboard/favorites", Component: Favorites },
-  { path: "/messages", Component: Messages },
   { path: "/login", Component: Login },
   { path: "/admin", Component: AdminDashboard },
   { path: "/admin/users", Component: AdminUsers },
