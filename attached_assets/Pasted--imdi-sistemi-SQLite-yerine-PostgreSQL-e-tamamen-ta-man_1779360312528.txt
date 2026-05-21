@@ -1,0 +1,138 @@
+Şimdi sistemi SQLite yerine PostgreSQL’e tamamen taşımanı istiyorum.
+
+Amaç:
+Gerçek production mantığına daha yakın, PostgreSQL kullanan tam dinamik bir sistem oluşturmak.
+
+Yapılacaklar:
+
+SQLite bağımlılıklarını tamamen kaldır
+sqlite3 paketlerini kaldır
+sqlite database dosyalarını kaldır
+tüm sqlite bağlantı kodlarını sil
+PostgreSQL kurulumu için yapı oluştur
+Backend tarafında:
+pg package kullan
+dotenv kullan
+database connection ayrı bir config dosyasında olsun
+
+Örnek yapı:
+backend/
+├── config/
+│ └── db.js
+├── routes/
+├── controllers/
+├── models/
+├── middleware/
+├── server.js
+└── .env
+
+.env desteği ekle
+Aşağıdaki environment değişkenlerini kullan:
+
+PORT=5000
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=petconnect
+DB_USER=postgres
+DB_PASSWORD=yourpassword
+
+JWT_SECRET=supersecretkey
+
+PostgreSQL connection pool oluştur
+pg Pool kullan.
+Sunucu açılırken DB bağlantısı test edilsin.
+Tüm tablolar PostgreSQL uyumlu hale getirilsin
+SQLite syntaxlarını PostgreSQL syntaxına çevir.
+
+Özellikle:
+
+INTEGER PRIMARY KEY AUTOINCREMENT yerine SERIAL
+TEXT yerine uygun yerlerde VARCHAR
+BOOLEAN kullan
+TIMESTAMP DEFAULT CURRENT_TIMESTAMP kullan
+UUID destekli yapı kur
+UUID sistemi ekle
+users, shelters, pets tablolarında UUID kullan.
+uuid extension ve uuid_generate_v4() kullan.
+PostgreSQL için tam migration dosyaları oluştur
+Tek bir schema.sql yerine:
+migrations klasörü oluştur
+her tablo için ayrı migration oluştur
+create_users_table.sql
+create_pets_table.sql
+create_shelters_table.sql vb.
+Seed sistemi oluştur
+Örnek:
+admin kullanıcı
+birkaç shelter
+birkaç pet ilanı
+otomatik eklensin.
+Frontend ve backend tamamen dinamik çalışsın
+Şu alanlar DB’den gelsin:
+ilan sayıları
+favori sayıları
+shelter toplam pet sayısı
+adopted count
+featured listings
+dashboard istatistikleri
+detail page verileri
+homepage counters
+
+Hardcoded hiçbir sayı kalmasın.
+
+API yapısını profesyonel hale getir
+Aşağıdaki endpointler tam çalışsın:
+
+Auth:
+POST /api/auth/register
+POST /api/auth/login
+GET /api/auth/me
+
+Pets:
+GET /api/pets
+GET /api/pets/:id
+POST /api/pets
+PUT /api/pets/:id
+DELETE /api/pets/:id
+
+Shelters:
+GET /api/shelters
+GET /api/shelters/:id
+
+Favorites:
+POST /api/favorites/:petId
+DELETE /api/favorites/:petId
+GET /api/favorites
+
+Authentication sistemi kur
+JWT authentication
+middleware auth koruması
+bcrypt password hashing
+protected routes
+Backend mimarisini temizle
+Controller / Route / Service mantığı kullan.
+Kodları modüler hale getir.
+Frontend API bağlantılarını güncelle
+axios baseURL kullan.
+Environment variable destekli yapı kur:
+VITE_API_URL=http://localhost:5000/api
+Projeyi tek komutla çalıştırılabilir hale getir
+Root package.json içinde:
+npm run dev
+
+hem frontend hem backend birlikte çalışsın.
+
+README oluştur
+Şunları anlatsın:
+PostgreSQL kurulumu
+database oluşturma
+env ayarları
+migration çalıştırma
+seed çalıştırma
+projeyi başlatma
+
+Kodları production mantığıyla düzenle.
+Temiz, ölçeklenebilir ve gerçek bir SaaS mimarisi gibi ilerle.
+Mevcut UI tasarımını bozma.
+Sadece gerekli frontend değişikliklerini yap.

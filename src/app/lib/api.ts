@@ -1,101 +1,94 @@
-const BASE_URL = '/api';
+import axios from 'axios';
 
-function getToken(): string | null {
-  return localStorage.getItem('token');
-}
+const BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = getToken();
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...(options.headers as Record<string, string> || {}),
-  };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+const client = axios.create({
+  baseURL: BASE_URL,
+  headers: { 'Content-Type': 'application/json' },
+});
 
-  const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Bir hata oluştu');
-  return data as T;
-}
+client.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+client.interceptors.response.use(
+  (res) => res.data,
+  (err) => {
+    const message = err.response?.data?.error || 'Bir hata oluştu';
+    return Promise.reject(new Error(message));
+  }
+);
 
 export const api = {
   auth: {
     login: (email: string, password: string) =>
-      request<{ token: string; user: User }>('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-      }),
+      client.post<never, { token: string; user: User }>('/auth/login', { email, password }),
     register: (body: Record<string, string | boolean>) =>
-      request<{ token: string; user: User }>('/auth/register', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      }),
-    me: () => request<{ user: User; shelter: Shelter | null }>('/auth/me'),
+      client.post<never, { token: string; user: User }>('/auth/register', body),
+    me: () => client.get<never, { user: User; shelter: Shelter | null }>('/auth/me'),
   },
 
   pets: {
-    list: (params?: Record<string, string>) => {
-      const qs = params ? '?' + new URLSearchParams(params).toString() : '';
-      return request<Pet[]>(`/pets${qs}`);
-    },
-    get: (id: string) => request<Pet>(`/pets/${id}`),
+    list: (params?: Record<string, string>) =>
+      client.get<never, Pet[]>('/pets', { params }),
+    get: (id: string) =>
+      client.get<never, Pet>(`/pets/${id}`),
     create: (body: Partial<Pet> & { images?: string[] }) =>
-      request<Pet>('/pets', { method: 'POST', body: JSON.stringify(body) }),
+      client.post<never, Pet>('/pets', body),
     update: (id: string, body: Partial<Pet> & { images?: string[] }) =>
-      request<Pet>(`/pets/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
-    delete: (id: string) => request<{ success: boolean }>(`/pets/${id}`, { method: 'DELETE' }),
-    myListings: () => request<Pet[]>('/pets/user/my-listings'),
+      client.put<never, Pet>(`/pets/${id}`, body),
+    delete: (id: string) =>
+      client.delete<never, { success: boolean }>(`/pets/${id}`),
+    myListings: () =>
+      client.get<never, Pet[]>('/pets/user/my-listings'),
   },
 
   shelters: {
-    list: (params?: Record<string, string>) => {
-      const qs = params ? '?' + new URLSearchParams(params).toString() : '';
-      return request<Shelter[]>(`/shelters${qs}`);
-    },
-    get: (id: string) => request<Shelter>(`/shelters/${id}`),
+    list: (params?: Record<string, string>) =>
+      client.get<never, Shelter[]>('/shelters', { params }),
+    get: (id: string) =>
+      client.get<never, Shelter>(`/shelters/${id}`),
     update: (id: string, body: Partial<Shelter>) =>
-      request<Shelter>(`/shelters/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+      client.put<never, Shelter>(`/shelters/${id}`, body),
   },
 
   favorites: {
-    list: () => request<Pet[]>('/favorites'),
-    add: (petId: string) => request<{ favorited: boolean }>(`/favorites/${petId}`, { method: 'POST' }),
-    remove: (petId: string) => request<{ favorited: boolean }>(`/favorites/${petId}`, { method: 'DELETE' }),
-    check: (petId: string) => request<{ favorited: boolean }>(`/favorites/check/${petId}`),
+    list: () =>
+      client.get<never, Pet[]>('/favorites'),
+    add: (petId: string) =>
+      client.post<never, { favorited: boolean }>(`/favorites/${petId}`),
+    remove: (petId: string) =>
+      client.delete<never, { favorited: boolean }>(`/favorites/${petId}`),
+    check: (petId: string) =>
+      client.get<never, { favorited: boolean }>(`/favorites/check/${petId}`),
   },
 
   admin: {
-    stats: () => request<AdminStats>('/admin/stats'),
-    users: (params?: Record<string, string>) => {
-      const qs = params ? '?' + new URLSearchParams(params).toString() : '';
-      return request<User[]>(`/admin/users${qs}`);
-    },
+    stats: () =>
+      client.get<never, AdminStats>('/admin/stats'),
+    users: (params?: Record<string, string>) =>
+      client.get<never, User[]>('/admin/users', { params }),
     updateUser: (id: string, body: Partial<User>) =>
-      request<User>(`/admin/users/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
-    shelters: (params?: Record<string, string>) => {
-      const qs = params ? '?' + new URLSearchParams(params).toString() : '';
-      return request<Shelter[]>(`/admin/shelters${qs}`);
-    },
+      client.put<never, User>(`/admin/users/${id}`, body),
+    shelters: (params?: Record<string, string>) =>
+      client.get<never, Shelter[]>('/admin/shelters', { params }),
     approveShelter: (id: string) =>
-      request<{ success: boolean }>(`/admin/shelters/${id}/approve`, { method: 'PUT' }),
+      client.put<never, { success: boolean }>(`/admin/shelters/${id}/approve`),
     rejectShelter: (id: string) =>
-      request<{ success: boolean }>(`/admin/shelters/${id}/reject`, { method: 'PUT' }),
-    listings: (params?: Record<string, string>) => {
-      const qs = params ? '?' + new URLSearchParams(params).toString() : '';
-      return request<Pet[]>(`/admin/listings${qs}`);
-    },
+      client.put<never, { success: boolean }>(`/admin/shelters/${id}/reject`),
+    listings: (params?: Record<string, string>) =>
+      client.get<never, Pet[]>('/admin/listings', { params }),
     updateListing: (id: string, body: Record<string, unknown>) =>
-      request<Pet>(`/admin/listings/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+      client.put<never, Pet>(`/admin/listings/${id}`, body),
     deleteListing: (id: string) =>
-      request<{ success: boolean }>(`/admin/listings/${id}`, { method: 'DELETE' }),
+      client.delete<never, { success: boolean }>(`/admin/listings/${id}`),
   },
 
   contact: {
     submit: (body: { name: string; email: string; subject?: string; message: string }) =>
-      request<{ success: boolean; message: string }>('/contact', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      }),
+      client.post<never, { success: boolean; message: string }>('/contact', body),
   },
 };
 
@@ -107,7 +100,7 @@ export interface User {
   phone?: string;
   city?: string;
   avatar_url?: string;
-  is_active?: number;
+  is_active?: boolean;
   created_at?: string;
 }
 
@@ -173,6 +166,7 @@ export interface Shelter {
   founded_year?: number;
   total_pets?: number;
   totalPets?: number;
+  live_pets?: number;
   adopted_count?: number;
   adoptedCount?: number;
   capacity?: number;

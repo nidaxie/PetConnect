@@ -1,19 +1,21 @@
 {
   "name": "petconnect-backend",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "migrate": "node migrate.js",
+    "seed": "node seed.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^9.6.0",
     "cors": "^2.8.6",
     "dotenv": "^16.6.1",
     "express": "^4.22.2",
     "jsonwebtoken": "^9.0.3",
     "multer": "^1.4.5-lts.1",
+    "pg": "^8.21.0",
     "uuid": "^9.0.1"
   }
 }
