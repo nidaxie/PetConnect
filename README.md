@@ -1,191 +1,202 @@
 # PetConnect 🐾
 
-Türkiye'nin evcil hayvan sahiplenme ve çiftleştirme platformu. React/Vite frontend + Node.js/Express backend, PostgreSQL veritabanı.
+**PetConnect** is a pet adoption and breeding platform designed to connect pet owners, prospective adopters, and animal shelters in Türkiye.
 
----
+The application features a React and Vite frontend, a Node.js and Express backend, and a PostgreSQL database. It provides user authentication, pet listings, shelter profiles, favorites, contact forms, and administrative management tools.
 
-## Proje Yapısı
+## 📋 Project Structure
 
-```
+```text
 petconnect/
-├── src/                        # Frontend (React + Vite + Tailwind)
+├── src/                        # Frontend (React + Vite + Tailwind CSS)
 │   └── app/
-│       ├── components/         # Yeniden kullanılabilir UI bileşenleri
-│       ├── context/            # AuthContext (JWT oturumu)
+│       ├── components/         # Reusable UI components
+│       ├── context/            # Authentication context (JWT sessions)
 │       ├── lib/
-│       │   └── api.ts          # Axios istemcisi (/api proxy)
-│       ├── pages/              # Sayfa bileşenleri
-│       └── routes.tsx          # React Router tanımları
+│       │   └── api.ts          # Axios client (/api proxy)
+│       ├── pages/              # Page components
+│       └── routes.tsx          # React Router configuration
 ├── backend/                    # Backend (Node.js + Express)
 │   ├── config/
-│   │   └── db.js               # PostgreSQL bağlantı havuzu
-│   ├── controllers/            # İş mantığı katmanı
-│   │   ├── authController.js
-│   │   ├── petsController.js
-│   │   ├── sheltersController.js
-│   │   ├── favoritesController.js
-│   │   ├── adminController.js
-│   │   └── contactController.js
+│   │   └── db.js               # PostgreSQL connection pool
+│   ├── controllers/            # Business logic layer
 │   ├── middleware/
-│   │   └── auth.js             # JWT doğrulama middleware
-│   ├── migrations/             # Sıralı SQL migration dosyaları
-│   │   ├── 001_create_extensions.sql
-│   │   ├── 002_create_users.sql
-│   │   ├── 003_create_shelters.sql
-│   │   ├── 004_create_pets.sql
-│   │   ├── 005_create_pet_images.sql
-│   │   ├── 006_create_favorites.sql
-│   │   ├── 007_create_contact_submissions.sql
-│   │   └── 008_create_activities.sql
-│   ├── routes/                 # Express router katmanı
-│   │   ├── auth.js
-│   │   ├── pets.js
-│   │   ├── shelters.js
-│   │   ├── favorites.js
-│   │   ├── admin.js
-│   │   └── contact.js
-│   ├── server.js               # Uygulama giriş noktası
-│   ├── migrate.js              # Migration yürütücü
-│   ├── seed.js                 # Demo veri yükleyici
+│   │   └── auth.js             # JWT authentication middleware
+│   ├── migrations/             # Sequential SQL migration files
+│   ├── routes/                 # Express route handlers
+│   ├── server.js               # Application entry point
+│   ├── migrate.js              # Database migration runner
+│   ├── seed.js                 # Demo data seeder
 │   └── package.json
-├── start.sh                    # Backend + frontend başlatıcı
-├── vite.config.ts              # Vite + /api proxy ayarları
-└── package.json                # Frontend bağımlılıkları
+├── start.sh                    # Startup script for frontend and backend
+├── vite.config.ts              # Vite configuration and /api proxy
+└── package.json                # Frontend dependencies
 ```
 
----
+## 🚀 Getting Started
 
-## Kurulum ve Çalıştırma
+### Prerequisites
 
-### Gereksinimler
-- Node.js 18+
-- PostgreSQL (Replit'te otomatik sağlanır)
+- Node.js 18 or later
+- PostgreSQL database
 
-### Ortam Değişkenleri
+### Environment Variables
 
-`backend/.env` dosyası oluşturun:
+Create a `.env` file inside the `backend/` directory:
 
 ```env
 PORT=3001
 JWT_SECRET=your_secret_key_here
+DATABASE_URL=your_postgresql_connection_string
 ```
 
-PostgreSQL bağlantı bilgileri Replit tarafından otomatik olarak sağlanır (`DATABASE_URL`, `PGHOST`, vb.).
+Configure your PostgreSQL connection using the appropriate environment variables for your environment, such as `DATABASE_URL`, `PGHOST`, and related PostgreSQL settings.
 
-### Bağımlılıkları Yükleyin
+**Security note:** Use a strong, unique JWT secret and never commit real credentials or secrets to version control.
+
+### Install Dependencies
+
+Install the frontend dependencies:
 
 ```bash
-# Frontend bağımlılıkları
 npm install
-
-# Backend bağımlılıkları
-cd backend && npm install
 ```
 
-### Uygulamayı Başlatın
+Install the backend dependencies:
+
+```bash
+cd backend
+npm install
+cd ..
+```
+
+### Run the Application
+
+Start the application using:
 
 ```bash
 bash start.sh
 ```
 
-Bu komut:
-1. PostgreSQL bağlantısını test eder
-2. Tüm migration'ları sırayla çalıştırır
-3. Demo verileri yükler (ilk çalıştırmada)
-4. Backend'i port 3001'de başlatır
-5. Vite dev server'ı port 5000'de başlatır
+The startup script is designed to:
 
----
+1. Test the PostgreSQL connection.
+2. Run database migrations in sequence.
+3. Load demo data on the initial setup.
+4. Start the backend server on port `3001`.
+5. Start the Vite development server on port `5000`.
 
-## API Endpoint'leri
+*Note: Actual startup behavior depends on the project's current configuration and environment.*
 
-### Kimlik Doğrulama
-| Method | Endpoint | Açıklama |
-|--------|----------|----------|
-| POST | `/api/auth/register` | Yeni kullanıcı kaydı |
-| POST | `/api/auth/login` | Giriş, JWT döner |
-| GET | `/api/auth/me` | Mevcut kullanıcı bilgisi |
+## 🔌 API Endpoints
 
-### İlanlar (Pets)
-| Method | Endpoint | Açıklama |
-|--------|----------|----------|
-| GET | `/api/pets` | İlanları listele (filtreli) |
-| GET | `/api/pets/:id` | İlan detayı |
-| POST | `/api/pets` | Yeni ilan oluştur (auth) |
-| PUT | `/api/pets/:id` | İlan güncelle (auth) |
-| DELETE | `/api/pets/:id` | İlan sil (auth) |
+All endpoints use the `/api` prefix.
 
-### Barınaklar
-| Method | Endpoint | Açıklama |
-|--------|----------|----------|
-| GET | `/api/shelters` | Barınakları listele |
-| GET | `/api/shelters/:id` | Barınak detayı |
-| POST | `/api/shelters` | Barınak kaydı (admin) |
+### Authentication
 
-### Favoriler
-| Method | Endpoint | Açıklama |
-|--------|----------|----------|
-| GET | `/api/favorites` | Favori ilanlarım (auth) |
-| POST | `/api/favorites/:petId` | Favoriye ekle (auth) |
-| DELETE | `/api/favorites/:petId` | Favoriden çıkar (auth) |
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/auth/register` | Register a new user |
+| `POST` | `/api/auth/login` | Log in and receive a JWT |
+| `GET` | `/api/auth/me` | Retrieve the current user's information |
 
-### Admin
-| Method | Endpoint | Açıklama |
-|--------|----------|----------|
-| GET | `/api/admin/stats` | Platform istatistikleri |
-| GET | `/api/admin/users` | Kullanıcı yönetimi |
-| GET | `/api/admin/pets` | İlan yönetimi |
-| PUT | `/api/admin/pets/:id/approve` | İlan onayla |
+### Pet Listings
 
-### İletişim
-| Method | Endpoint | Açıklama |
-|--------|----------|----------|
-| POST | `/api/contact` | İletişim formu gönder |
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/pets` | List pet listings with filtering |
+| `GET` | `/api/pets/:id` | Retrieve pet details |
+| `POST` | `/api/pets` | Create a pet listing (authenticated) |
+| `PUT` | `/api/pets/:id` | Update a pet listing (authenticated) |
+| `DELETE` | `/api/pets/:id` | Delete a pet listing (authenticated) |
 
----
+### Shelters
 
-## Demo Hesapları
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/shelters` | List animal shelters |
+| `GET` | `/api/shelters/:id` | Retrieve shelter details |
+| `POST` | `/api/shelters` | Register a shelter (admin) |
 
-Seed verileri aşağıdaki hesapları oluşturur:
+### Favorites
 
-| Rol | E-posta | Şifre |
-|-----|---------|-------|
-| Admin | admin@petconnect.com | Admin123! |
-| Kullanıcı | ayse@example.com | User1234! |
-| Barınak | info@patibarinak.com | Shelter123! |
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/favorites` | Retrieve the user's favorite listings (authenticated) |
+| `POST` | `/api/favorites/:petId` | Add a listing to favorites (authenticated) |
+| `DELETE` | `/api/favorites/:petId` | Remove a listing from favorites (authenticated) |
 
----
+### Administration
 
-## Teknoloji Yığını
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/admin/stats` | Retrieve platform statistics |
+| `GET` | `/api/admin/users` | Manage users |
+| `GET` | `/api/admin/pets` | Manage pet listings |
+| `PUT` | `/api/admin/pets/:id/approve` | Approve a pet listing |
+
+### Contact
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/contact` | Submit a contact form |
+
+*Authenticated and administrator-only endpoints require the appropriate authorization.*
+
+## 🧪 Demo Accounts
+
+The seed script is intended to create the following demo accounts:
+
+| Role | Email | Password |
+|---|---|---|
+| Administrator | `admin@petconnect.com` | `Admin123!` |
+| User | `ayse@example.com` | `User1234!` |
+| Shelter | `info@patibarinak.com` | `Shelter123!` |
+
+These credentials are for local development and demonstration purposes only. Do not use them in production.
+
+## 🛠️ Technology Stack
 
 ### Frontend
-- **React 18** — UI kütüphanesi
-- **Vite 6** — Build tool ve dev server
-- **TypeScript** — Tip güvenliği
-- **Tailwind CSS 4** — Utility-first CSS
-- **React Router 7** — Sayfa yönlendirme
-- **Axios** — HTTP istemcisi
-- **shadcn/ui + Radix UI** — Bileşen kütüphanesi
+
+- **React 18** — UI development
+- **Vite 6** — Development server and build tooling
+- **TypeScript** — Static type checking
+- **Tailwind CSS 4** — Utility-first styling
+- **React Router 7** — Client-side routing
+- **Axios** — HTTP requests
+- **shadcn/ui and Radix UI** — UI components
 
 ### Backend
-- **Node.js + Express** — API sunucusu
-- **PostgreSQL (pg)** — Ana veritabanı
-- **JWT (jsonwebtoken)** — Kimlik doğrulama
-- **bcryptjs** — Şifre hashleme
-- **MVC mimarisi** — controllers / routes / config katmanları
 
----
+- **Node.js and Express** — REST API server
+- **PostgreSQL and `pg`** — Relational database
+- **JSON Web Tokens (JWT)** — Authentication
+- **bcryptjs** — Password hashing
+- **MVC-inspired architecture** — Separation of controllers, routes, and configuration
 
-## Veritabanı Şeması
+## 🗄️ Database Schema
 
-```
-users              — Kullanıcı hesapları (admin/user/shelter rolleri)
-shelters           — Barınak profilleri
-pets               — Evcil hayvan ilanları (sahiplenme/çiftleştirme)
-pet_images         — İlan görselleri
-favorites          — Kullanıcı favorileri
-contact_submissions — İletişim formu başvuruları
-activities         — Sistem aktivite günlüğü
-```
+| Table | Description |
+|---|---|
+| `users` | User accounts and roles (`admin`, `user`, `shelter`) |
+| `shelters` | Animal shelter profiles |
+| `pets` | Pet listings for adoption and breeding |
+| `pet_images` | Images associated with pet listings |
+| `favorites` | Users' favorite pet listings |
+| `contact_submissions` | Contact form submissions |
+| `activities` | System activity logs |
 
-Migration'lar `backend/migrations/` dizininde sıralı SQL dosyaları olarak tutulur ve uygulama her başladığında otomatik çalışır (idempotent — tekrar çalıştırılabilir).
+Database migration files are stored in `backend/migrations/` and are designed to run in sequence. The migration runner is intended to support repeatable execution where migrations are implemented accordingly.
+
+## 📌 Key Features
+
+- User registration and login with JWT authentication
+- Pet listing creation, viewing, updating, and deletion
+- Pet adoption and breeding listings
+- Animal shelter profiles
+- Favorites management
+- Contact form submissions
+- Administrative dashboard and platform statistics
+- PostgreSQL database with SQL migrations
+- Demo data for local development
