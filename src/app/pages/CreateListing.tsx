@@ -1,15 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
-import { cities, dogBreeds, catBreeds, type PetType, type ListingType, type Gender } from "../data/mockData";
 import { Upload, X, CheckCircle } from "lucide-react";
-import { api } from "../lib/api";
+import { api, type Gender, type ListingType, type PetType } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 
 export function CreateListing() {
   const navigate = useNavigate();
   const { isAuthenticated, loading: authLoading } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     type: "" as PetType | "",
@@ -24,6 +24,8 @@ export function CreateListing() {
     neutered: false,
   });
   const [images, setImages] = useState<string[]>([]);
+  const [cities, setCities] = useState<string[]>([]);
+  const [breedsByType, setBreedsByType] = useState<Record<PetType, string[]>>({ dog: [], cat: [] });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -31,7 +33,16 @@ export function CreateListing() {
     if (!authLoading && !isAuthenticated) navigate("/login");
   }, [isAuthenticated, authLoading, navigate]);
 
-  const breeds = formData.type === "dog" ? dogBreeds : formData.type === "cat" ? catBreeds : [];
+  useEffect(() => {
+    api.meta.options()
+      .then((options) => {
+        setCities(options.cities);
+        setBreedsByType(options.breeds);
+      })
+      .catch((err) => console.error("Fetch options error:", err));
+  }, []);
+
+  const breeds = formData.type ? breedsByType[formData.type] : [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +61,7 @@ export function CreateListing() {
         healthStatus: formData.healthStatus,
         vaccinated: formData.vaccinated,
         neutered: formData.neutered,
-        images: images.length > 0 ? images : ['https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800'],
+        images,
       } as Parameters<typeof api.pets.create>[0]);
       navigate("/dashboard/listings");
     } catch (err: unknown) {
@@ -59,17 +70,20 @@ export function CreateListing() {
     }
   };
 
-  const handleImageUpload = () => {
-    const mockImages = [
-      "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800",
-      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800",
-      "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800",
-      "https://images.unsplash.com/photo-1573865526739-10c1dd69c13a?w=800",
-      "https://images.unsplash.com/photo-1568572933382-74d440642117?w=800",
-    ];
-    if (images.length < 5) {
-      setImages([...images, mockImages[images.length % mockImages.length]]);
-    }
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []).slice(0, 5 - images.length);
+    if (files.length === 0) return;
+
+    Promise.all(files.map((file) => new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(new Error("Fotoğraf okunamadı"));
+      reader.readAsDataURL(file);
+    })))
+      .then((uploadedImages) => setImages((current) => [...current, ...uploadedImages].slice(0, 5)))
+      .catch((err) => setError(err instanceof Error ? err.message : "Fotoğraf yüklenemedi"));
+
+    event.target.value = "";
   };
 
   const removeImage = (index: number) => setImages(images.filter((_, i) => i !== index));
@@ -173,7 +187,15 @@ export function CreateListing() {
 
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
             <h2 className="text-lg font-semibold mb-4">Fotoğraflar</h2>
-            <p className="text-sm text-gray-600 mb-4">En fazla 5 fotoğraf yükleyebilirsiniz (Demo: örnek görseller eklenir)</p>
+            <p className="text-sm text-gray-600 mb-4">En fazla 5 fotoğraf yükleyebilirsiniz</p>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageUpload}
+              className="hidden"
+            />
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {images.map((image, index) => (
                 <div key={index} className="relative aspect-square group">
@@ -184,7 +206,7 @@ export function CreateListing() {
                 </div>
               ))}
               {images.length < 5 && (
-                <button type="button" onClick={handleImageUpload} className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-orange-500 hover:bg-orange-50 transition-colors">
+                <button type="button" onClick={() => fileInputRef.current?.click()} className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-orange-500 hover:bg-orange-50 transition-colors">
                   <Upload className="w-8 h-8 text-gray-400" />
                   <span className="text-xs text-gray-500">Yükle</span>
                 </button>

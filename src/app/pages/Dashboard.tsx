@@ -23,7 +23,7 @@ export function Dashboard() {
         api.pets.myListings().catch(() => []),
         api.favorites.list().catch(() => [])
       ]).then(([listings, favs]) => {
-        setMyListings(listings.slice(0, 3));
+        setMyListings(listings);
         setFavCount(favs.length);
         setDataLoading(false);
       });
@@ -97,7 +97,7 @@ export function Dashboard() {
 
               {myListings.length > 0 ? (
                 <div className="space-y-4">
-                  {myListings.map((pet) => (
+                  {myListings.slice(0, 3).map((pet) => (
                     <Link key={pet.id} to={`/pets/${pet.id}`} className="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors">
                       <img src={pet.images?.[0] || ''} alt={pet.name} className="w-20 h-20 rounded-lg object-cover flex-shrink-0" />
                       <div className="flex-1 min-w-0">

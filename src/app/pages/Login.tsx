@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { PawPrint, Mail, Lock, User as UserIcon, Phone, MapPin, Building, FileText, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { api } from "../lib/api";
 
 export function Login() {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ export function Login() {
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [cities, setCities] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -27,6 +29,12 @@ export function Login() {
   });
 
   const [uploadedDocuments, setUploadedDocuments] = useState<string[]>([]);
+
+  useEffect(() => {
+    api.meta.options()
+      .then((options) => setCities(options.cities))
+      .catch(() => setCities([]));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,8 +68,11 @@ export function Login() {
     }
   };
 
-  const handleDocumentUpload = () => {
-    setUploadedDocuments([...uploadedDocuments, "Belge_" + (uploadedDocuments.length + 1) + ".pdf"]);
+  const handleDocumentUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
+    setUploadedDocuments((current) => [...current, ...files.map(file => file.name)].slice(0, 5));
+    event.target.value = "";
   };
 
   const removeDocument = (index: number) => {
@@ -90,12 +101,6 @@ export function Login() {
             {error && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
                 {error}
-              </div>
-            )}
-
-            {isLogin && (
-              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
-                <strong>Demo hesaplar:</strong> admin@petconnect.com / Admin123! &nbsp;|&nbsp; ayse@example.com / User1234!
               </div>
             )}
 
@@ -217,7 +222,7 @@ export function Login() {
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                           >
                             <option value="">Seçiniz</option>
-                            {["İstanbul","Ankara","İzmir","Bursa","Antalya","Adana","Konya","Gaziantep","Van","Mersin"].map(c => (
+                            {cities.map(c => (
                               <option key={c} value={c}>{c}</option>
                             ))}
                           </select>
@@ -289,13 +294,21 @@ export function Login() {
 
                       <div>
                         <label className="block text-sm font-medium mb-2">Resmi Belgeler</label>
+                        <input
+                          id="shelter-documents"
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          multiple
+                          onChange={handleDocumentUpload}
+                          className="hidden"
+                        />
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                           <p className="text-sm text-gray-600 mb-3">
                             Ruhsat, dernek tescil belgesi veya resmi kurum onay belgesi yükleyin
                           </p>
                           <button
                             type="button"
-                            onClick={handleDocumentUpload}
+                            onClick={() => document.getElementById("shelter-documents")?.click()}
                             className="px-4 py-2 bg-orange-100 text-orange-600 rounded-lg text-sm font-medium hover:bg-orange-200 transition-colors"
                           >
                             Belge Yükle

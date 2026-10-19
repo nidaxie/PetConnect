@@ -36,7 +36,7 @@ async function enrichPet(pet) {
 
 async function list(req, res) {
   try {
-    const { type, breed, city, gender, listingType, minAge, maxAge, featured, search, size } = req.query;
+    const { type, breed, city, gender, listingType, minAge, maxAge, featured, search, size, ownerId, ownerType } = req.query;
 
     const conditions = ["p.status = 'active'"];
     const params     = [];
@@ -48,6 +48,8 @@ async function list(req, res) {
     if (gender)      { conditions.push(`p.gender = $${idx++}`);       params.push(gender); }
     if (listingType) { conditions.push(`p.listing_type = $${idx++}`); params.push(listingType); }
     if (size)        { conditions.push(`p.size = $${idx++}`);         params.push(size); }
+    if (ownerId)     { conditions.push(`p.owner_id = $${idx++}`);     params.push(ownerId); }
+    if (ownerType)   { conditions.push(`p.owner_type = $${idx++}`);   params.push(ownerType); }
     if (minAge)      { conditions.push(`p.age >= $${idx++}`);         params.push(parseInt(minAge)); }
     if (maxAge)      { conditions.push(`p.age <= $${idx++}`);         params.push(parseInt(maxAge)); }
     if (featured === 'true') { conditions.push('p.featured = TRUE'); }

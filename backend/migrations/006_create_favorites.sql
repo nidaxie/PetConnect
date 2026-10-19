@@ -6,5 +6,9 @@ CREATE TABLE IF NOT EXISTS favorites (
   UNIQUE(user_id, pet_id)
 );
 
+ALTER TABLE favorites ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE favorites ADD COLUMN IF NOT EXISTS pet_id UUID;
+ALTER TABLE favorites ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+
 CREATE INDEX IF NOT EXISTS idx_favorites_user ON favorites(user_id);
 CREATE INDEX IF NOT EXISTS idx_favorites_pet  ON favorites(pet_id);

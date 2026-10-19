@@ -1,9 +1,13 @@
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 const { Pool } = require('pg');
 
+const connectionString =
+  process.env.DATABASE_URL ||
+  `postgresql://${process.env.PGUSER || 'postgres'}:${process.env.PGPASSWORD || '123'}@${process.env.PGHOST || 'localhost'}:${process.env.PGPORT || '5432'}/${process.env.PGDATABASE || 'petconnect'}`;
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.includes('sslmode=require')
+  connectionString,
+  ssl: connectionString.includes('sslmode=require')
     ? { rejectUnauthorized: false }
     : false,
 });

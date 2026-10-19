@@ -2,9 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { PetCard } from "../components/PetCard";
-import { cities, dogBreeds, catBreeds, type PetType, type ListingType, type Gender } from "../data/mockData";
 import { SlidersHorizontal } from "lucide-react";
-import { api, type Pet } from "../lib/api";
+import { api, type Gender, type ListingType, type Pet, type PetType } from "../lib/api";
 
 export function ExplorePets() {
   const [pets, setPets] = useState<Pet[]>([]);
@@ -18,7 +17,18 @@ export function ExplorePets() {
     minAge: "",
     maxAge: "",
   });
+  const [cities, setCities] = useState<string[]>([]);
+  const [breedsByType, setBreedsByType] = useState<Record<PetType, string[]>>({ dog: [], cat: [] });
   const [showFilters, setShowFilters] = useState(true);
+
+  useEffect(() => {
+    api.meta.options()
+      .then((options) => {
+        setCities(options.cities);
+        setBreedsByType(options.breeds);
+      })
+      .catch((err) => console.error("Fetch options error:", err));
+  }, []);
 
   const fetchPets = useCallback(async () => {
     setLoading(true);
@@ -44,7 +54,7 @@ export function ExplorePets() {
     fetchPets();
   }, [fetchPets]);
 
-  const breeds = filters.type === "dog" ? dogBreeds : filters.type === "cat" ? catBreeds : [];
+  const breeds = filters.type ? breedsByType[filters.type] : [];
 
   const clearFilters = () => {
     setFilters({ type: "", breed: "", city: "", gender: "", listingType: "", minAge: "", maxAge: "" });

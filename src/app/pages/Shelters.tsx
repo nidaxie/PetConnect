@@ -2,15 +2,21 @@ import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
-import { cities } from "../data/mockData";
 import { MapPin, Users, CheckCircle, Home, Search } from "lucide-react";
 import { api, type Shelter } from "../lib/api";
 
 export function Shelters() {
   const [shelters, setShelters] = useState<Shelter[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cities, setCities] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+
+  useEffect(() => {
+    api.meta.options()
+      .then((options) => setCities(options.cities))
+      .catch((err) => console.error("Fetch options error:", err));
+  }, []);
 
   const fetchShelters = useCallback(async () => {
     setLoading(true);

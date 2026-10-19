@@ -90,7 +90,18 @@ export const api = {
     submit: (body: { name: string; email: string; subject?: string; message: string }) =>
       client.post<never, { success: boolean; message: string }>('/contact', body),
   },
+
+  meta: {
+    options: () =>
+      client.get<never, MetaOptions>('/meta/options'),
+    stats: () =>
+      client.get<never, PublicStats>('/meta/stats'),
+  },
 };
+
+export type PetType = 'dog' | 'cat';
+export type ListingType = 'adoption' | 'mating';
+export type Gender = 'male' | 'female';
 
 export interface User {
   id: string;
@@ -107,11 +118,11 @@ export interface User {
 export interface Pet {
   id: string;
   name: string;
-  type: 'dog' | 'cat';
+  type: PetType;
   breed: string;
   age: number;
   age_unit?: 'month' | 'year';
-  gender: 'male' | 'female';
+  gender: Gender;
   color?: string;
   weight?: number;
   size?: 'small' | 'medium' | 'large' | 'xlarge';
@@ -188,4 +199,16 @@ export interface AdminStats {
   activeListings: number;
   totalAdoptions: number;
   activities: { id: number; type: string; action: string; entity_name: string; created_at: string }[];
+}
+
+export interface MetaOptions {
+  cities: string[];
+  breeds: Record<PetType, string[]>;
+}
+
+export interface PublicStats {
+  totalAdoptions: number;
+  activeListings: number;
+  approvedShelters: number;
+  activeUsers: number;
 }

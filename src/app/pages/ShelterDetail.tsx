@@ -18,10 +18,10 @@ export function ShelterDetail() {
     setLoading(true);
     Promise.all([
       api.shelters.get(id),
-      api.pets.list()
+      api.pets.list({ ownerId: id, ownerType: "shelter" })
     ]).then(([s, pets]) => {
       setShelter(s);
-      setShelterPets(pets.filter(p => p.owner_id === id || p.ownerId === id));
+      setShelterPets(pets);
       setLoading(false);
     }).catch(() => {
       setNotFound(true);

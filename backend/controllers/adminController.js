@@ -14,7 +14,12 @@ async function stats(req, res) {
       pool.query("SELECT COUNT(*)::int AS count FROM shelters WHERE status = 'pending'"),
       pool.query("SELECT COUNT(*)::int AS count FROM pets"),
       pool.query("SELECT COUNT(*)::int AS count FROM pets WHERE status = 'active'"),
-      pool.query("SELECT COUNT(*)::int AS count FROM pets WHERE status = 'adopted'"),
+      pool.query(`
+        SELECT (
+          (SELECT COUNT(*)::int FROM pets WHERE status = 'adopted') +
+          (SELECT COALESCE(SUM(adopted_count), 0)::int FROM shelters WHERE status = 'approved')
+        ) AS count
+      `),
       pool.query("SELECT * FROM activities ORDER BY created_at DESC LIMIT 20"),
     ]);
 

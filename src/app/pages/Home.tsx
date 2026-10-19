@@ -10,11 +10,18 @@ import { api, type Pet, type Shelter } from "../lib/api";
 export function Home() {
   const [featuredPets, setFeaturedPets] = useState<Pet[]>([]);
   const [shelters, setShelters] = useState<Shelter[]>([]);
+  const [stats, setStats] = useState({
+    totalAdoptions: 0,
+    activeListings: 0,
+    approvedShelters: 0,
+    activeUsers: 0,
+  });
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     api.pets.list({ featured: "true" }).then(setFeaturedPets).catch(() => {});
     api.shelters.list().then(s => setShelters(s.slice(0, 4))).catch(() => {});
+    api.meta.stats().then(setStats).catch(() => {});
   }, []);
 
   const slides = [
@@ -224,10 +231,10 @@ export function Home() {
       <section className="py-16 bg-gradient-to-br from-orange-500 to-pink-500 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div><div className="text-4xl font-bold mb-2">500+</div><div className="text-orange-100">Mutlu Sahiplendirme</div></div>
-            <div><div className="text-4xl font-bold mb-2">1000+</div><div className="text-orange-100">Aktif İlan</div></div>
-            <div><div className="text-4xl font-bold mb-2">50+</div><div className="text-orange-100">Kayıtlı Barınak</div></div>
-            <div><div className="text-4xl font-bold mb-2">10K+</div><div className="text-orange-100">Kullanıcı</div></div>
+            <div><div className="text-4xl font-bold mb-2">{stats.totalAdoptions}</div><div className="text-orange-100">Mutlu Sahiplendirme</div></div>
+            <div><div className="text-4xl font-bold mb-2">{stats.activeListings}</div><div className="text-orange-100">Aktif İlan</div></div>
+            <div><div className="text-4xl font-bold mb-2">{stats.approvedShelters}</div><div className="text-orange-100">Kayıtlı Barınak</div></div>
+            <div><div className="text-4xl font-bold mb-2">{stats.activeUsers}</div><div className="text-orange-100">Kullanıcı</div></div>
           </div>
         </div>
       </section>

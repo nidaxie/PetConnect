@@ -11,6 +11,7 @@ const sheltersRoutes  = require('./routes/shelters');
 const favoritesRoutes = require('./routes/favorites');
 const adminRoutes     = require('./routes/admin');
 const contactRoutes   = require('./routes/contact');
+const metaRoutes      = require('./routes/meta');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -26,6 +27,7 @@ app.use('/api/shelters',  sheltersRoutes);
 app.use('/api/favorites', favoritesRoutes);
 app.use('/api/admin',     adminRoutes);
 app.use('/api/contact',   contactRoutes);
+app.use('/api/meta',      metaRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
